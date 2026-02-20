@@ -168,5 +168,5 @@ position = Vector2(5714, 248)
 scale = Vector2(2, 2)
 
 [node name="door2" parent="." instance=ExtResource("5_0ha60")]
-position = Vector2(2783, 246)
+position = Vector2(1020, 245)
 scale = Vector2(2, 2)

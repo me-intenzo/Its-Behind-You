@@ -241,13 +241,13 @@ radius = 7.0
 height = 20.0
 
 [node name="villain" type="CharacterBody2D"]
+z_index = 1000
 script = ExtResource("1_i87x0")
 base_offset = 225.0
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_l3m3m")
 animation = &"run"
-frame_progress = 0.9255145
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(1, 1)

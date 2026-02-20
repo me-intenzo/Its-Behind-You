@@ -25,7 +25,7 @@ func _process(delta):
 	# Increase pressure near end
 	var current_speed = approach_speed
 	if creature_distance < 40:
-		current_speed = 3.0
+		current_speed = 3.5
 
 	creature_distance -= current_speed * delta
 
@@ -42,17 +42,17 @@ func peek_trigger():
 	if is_game_over:
 		return
 
-	#  PERFECT TIMING
+	# PERFECT TIMING
 	if creature_distance <= 16:
 
 		var push_back = randi_range(50, 80)
 		creature_distance += push_back
 		creature_distance = clamp(creature_distance, 0, starting_distance)
-		print("PERFECT")
 
+		print("PERFECT")
 		shake_camera()
 
-	#  MID RANGE
+	# MID RANGE
 	elif creature_distance <= 60:
 		creature_distance -= 5
 		print("GOOD")
@@ -91,19 +91,23 @@ func game_over():
 	is_game_over = true
 
 	hero_node.set_physics_process(false)
-	
+
 	villain_node.visible = true
 	villain_node.global_position = hero_node.global_position + Vector2(-20, 0)
+
+	# Small dramatic delay before death
+	await get_tree().create_timer(0.1).timeout
+
 	villain_node.get_node("AnimatedSprite2D").play("attack")
-	await get_tree().create_timer(0.03).timeout
+	await get_tree().create_timer(0.15).timeout
 	hero_node.get_node("AnimatedSprite2D").play("death")
 
-	await get_tree().create_timer(2.0).timeout
+	await get_tree().create_timer(2.2).timeout
 	get_tree().reload_current_scene()
 
 
 # ===============================
-# WIN GAME (Cinematic Camera Switch)
+# WIN GAME (Dark Cinematic Ending)
 # ===============================
 
 func win_game():
@@ -112,25 +116,49 @@ func win_game():
 		return
 
 	is_game_over = true
-
 	hero_node.set_physics_process(false)
 
-	var cam = hero_node.get_node("Camera2D")
+	# === Create cinematic layer (screen space) ===
+	var cinematic_layer = CanvasLayer.new()
+	cinematic_layer.layer = 10
+	get_tree().current_scene.add_child(cinematic_layer)
 
-	# Disable before moving
-	cam.enabled = false
+	# === Black background ===
+	var bg = ColorRect.new()
+	bg.color = Color.BLACK
+	bg.size = get_viewport().get_visible_rect().size
+	bg.position = Vector2.ZERO
+	cinematic_layer.add_child(bg)
+	
 
-	# Reparent safely
-	hero_node.remove_child(cam)
-	villain_node.add_child(cam)
+	# Fade in
+	bg.modulate.a = 0
+	for i in 15:
+		bg.modulate.a += 0.07
+		await get_tree().create_timer(0.03).timeout
 
-	# Snap camera to villain
-	cam.global_position = villain_node.global_position
-	cam.enabled = true
-
-	# Play villain death
+	# Hide gameplay
+	hero_node.visible = false
 	villain_node.visible = true
+
+	# === Move villain into screen space ===
+	var old_parent = villain_node.get_parent()
+	old_parent.remove_child(villain_node)
+	cinematic_layer.add_child(villain_node)
+
+# Center villain on screen
+
+	villain_node.position = bg.size / 4
+
+# Scale up villain for dramatic effect
+	villain_node.scale = Vector2(10, 10)  # adjust 2.5–4 depending on taste
+
+# Make sure pivot is centered
+	villain_node.get_node("AnimatedSprite2D").centered = true
+
+	await get_tree().create_timer(0.3).timeout
+
 	villain_node.get_node("AnimatedSprite2D").play("death")
 
-	await get_tree().create_timer(2.0).timeout
+	await get_tree().create_timer(2.5).timeout
 	get_tree().reload_current_scene()
