@@ -1,0 +1,82 @@
+[gd_scene load_steps=6 format=3 uid="uid://ccctt0oxjws40"]
+
+[ext_resource type="Script" uid="uid://f8ylhvsre3c7" path="res://script/main_menu.gd" id="1_2fwvj"]
+[ext_resource type="Texture2D" uid="uid://bx3n7pcfuyewx" path="res://asset/object/environment/Background/layer_1.png" id="1_3er1b"]
+[ext_resource type="FontFile" uid="uid://bydkhsaabpo58" path="res://asset/font/DungeonFont.ttf" id="2_hxu56"]
+[ext_resource type="Texture2D" uid="uid://btt47epsrwn8r" path="res://asset/object/environment/Background/layer_2.png" id="3_sepwh"]
+[ext_resource type="Texture2D" uid="uid://im1yuifalarq" path="res://asset/object/environment/Background/layer_3.png" id="4_14wem"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_2fwvj")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 1151.0
+offset_bottom = 649.0
+texture = ExtResource("1_3er1b")
+stretch_mode = 5
+
+[node name="TextureRect2" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_sepwh")
+
+[node name="TextureRect3" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_14wem")
+metadata/_edit_use_anchors_ = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -67.5
+offset_right = 20.0
+offset_bottom = 67.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_hxu56")
+theme_override_font_sizes/font_size = 90
+text = "Its Behind You !"
+horizontal_alignment = 1
+
+[node name="StartButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "START"
+
+[node name="CreditButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "CREDIT"
+
+[node name="EndButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "END"
+
+[connection signal="pressed" from="VBoxContainer/StartButton" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/CreditButton" to="." method="_on_credit_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/EndButton" to="." method="_on_Endbutton_pressed"]

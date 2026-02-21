@@ -1,0 +1,101 @@
+[gd_scene load_steps=4 format=3 uid="uid://csvf5nd20b8st"]
+
+[ext_resource type="Texture2D" uid="uid://bx3n7pcfuyewx" path="res://asset/object/environment/Background/layer_1.png" id="1_hgo0l"]
+[ext_resource type="Script" uid="uid://b3tod5gicajjp" path="res://script/credits.gd" id="1_s4ovi"]
+[ext_resource type="FontFile" uid="uid://bydkhsaabpo58" path="res://asset/font/DungeonFont.ttf" id="2_s4ovi"]
+
+[node name="Credits" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+script = ExtResource("1_s4ovi")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_hgo0l")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -142.5
+offset_top = -76.0
+offset_right = 142.5
+offset_bottom = 76.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_fonts/font = ExtResource("2_s4ovi")
+theme_override_font_sizes/font_size = 80
+text = "CREDITS"
+
+[node name="ART" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_s4ovi")
+theme_override_font_sizes/font_size = 48
+text = "ART"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ArtistCredit" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_s4ovi")
+theme_override_font_sizes/font_size = 30
+text = "incolgames, brullov, aimmaga, lizcheong"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MUSIC" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_s4ovi")
+theme_override_font_sizes/font_size = 48
+text = "MUSIC"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="musicCredit" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_s4ovi")
+theme_override_font_sizes/font_size = 30
+text = "ludoloonstudio, liminal-space-dev, dragon studio, fronbondi_skegs"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="FONT" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_s4ovi")
+theme_override_font_sizes/font_size = 48
+text = "FONT"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="FontCredit" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_s4ovi")
+theme_override_font_sizes/font_size = 30
+text = "vrtxrry"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BackButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "BACK"
+
+[connection signal="pressed" from="VBoxContainer/BackButton" to="." method="_on_back_button_pressed"]

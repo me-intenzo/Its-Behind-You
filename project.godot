@@ -11,9 +11,14 @@ config_version=5
 [application]
 
 config/name="Its Behind You!"
-run/main_scene="uid://c0x64kyh6fs3s"
+run/main_scene="uid://ccctt0oxjws40"
 config/features=PackedStringArray("4.5", "Mobile")
-config/icon="res://icon.svg"
+config/icon="uid://bk6ybidog5v2"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
 
 [input]
 
@@ -28,3 +33,4 @@ peek_back={
 
 textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="mobile"
+textures/vram_compression/import_etc2_astc=true

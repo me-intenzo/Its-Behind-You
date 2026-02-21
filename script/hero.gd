@@ -12,7 +12,7 @@ var is_peeking : bool = false
 func _ready():
 	sprite.play("run")
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	if is_peeking:
 		velocity.x = 0
 		sprite.play("idle")

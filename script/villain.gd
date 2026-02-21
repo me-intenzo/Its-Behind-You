@@ -9,7 +9,7 @@ extends CharacterBody2D
 func _ready():
 	visible = false
 
-func _process(delta):
+func _process(_delta):
 	if game_manager.creature_distance <= 0:
 		game_manager.game_over()
 		return
