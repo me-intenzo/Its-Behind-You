@@ -25,6 +25,9 @@ func _physics_process(_delta):
 func _input(event):
 	if event.is_action_pressed("peek_back") and !is_peeking:
 		start_peek()
+	
+	if event is InputEventScreenTouch and event.pressed and !is_peeking:
+		game_manager.peek_trigger()
 
 func start_peek():
 	is_peeking = true

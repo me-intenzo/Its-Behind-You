@@ -1,14 +1,14 @@
 [gd_scene load_steps=15 format=3 uid="uid://c0x64kyh6fs3s"]
 
 [ext_resource type="PackedScene" uid="uid://cy6swg7l8hlvk" path="res://scene/game_manager.tscn" id="1_brvut"]
-[ext_resource type="Texture2D" uid="uid://bxj8f0fyyx86d" path="res://asset/object/environment/Background/Dungeon Tile Set.png" id="1_v0l8b"]
+[ext_resource type="Texture2D" uid="uid://bxj8f0fyyx86d" path="res://asset/object/environment/Dungeon Tile Set.png" id="1_v0l8b"]
 [ext_resource type="PackedScene" uid="uid://1pfalyu23jxs" path="res://scene/hero.tscn" id="2_wp4xf"]
 [ext_resource type="PackedScene" uid="uid://daipm4yni5lpj" path="res://scene/villain.tscn" id="3_wp4xf"]
 [ext_resource type="PackedScene" uid="uid://nd7gneysc3x" path="res://scene/door.tscn" id="5_0ha60"]
-[ext_resource type="FontFile" uid="uid://bydkhsaabpo58" path="res://asset/font/DungeonFont.ttf" id="6_4j5ol"]
-[ext_resource type="AudioStream" uid="uid://h5ehaymacnpd" path="res://asset/sound/Ambient/Ambient Wind (8).mp3" id="7_k65ib"]
-[ext_resource type="AudioStream" uid="uid://4xocchl0kqva" path="res://asset/sound/music/dragon-studio-deep-haunting-drone-482880.mp3" id="8_wscrc"]
-[ext_resource type="AudioStream" uid="uid://jei3gp6bt7ny" path="res://asset/sound/SFX/Wind Footsteps (2).mp3" id="9_mswub"]
+[ext_resource type="FontFile" uid="uid://da0epsxsnxqbj" path="res://asset/font/DungeonFont.ttf" id="6_4j5ol"]
+[ext_resource type="AudioStream" uid="uid://bcsxxhguqebvv" path="res://asset/sound/Ambient/Ambient Wind (8).mp3" id="7_k65ib"]
+[ext_resource type="AudioStream" uid="uid://bjcpbw06w506w" path="res://asset/sound/music/dragon-studio-deep-haunting-drone-482880.mp3" id="8_wscrc"]
+[ext_resource type="AudioStream" uid="uid://c3dtytceeotp5" path="res://asset/sound/SFX/Wind Footsteps (2).mp3" id="9_mswub"]
 [ext_resource type="AudioStream" uid="uid://dk0smbjagll6u" path="res://asset/sound/SFX/fronbondi_skegs-sfx-slow-powerful-heartbeat-sound-effect-457182.mp3" id="10_hybxs"]
 [ext_resource type="AudioStream" uid="uid://csa614cfrdbbg" path="res://asset/sound/SFX/universfield-swoosh-029-487885.mp3" id="11_v2gmf"]
 
@@ -240,25 +240,20 @@ text = "MAIN MENU"
 
 [node name="WindPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("7_k65ib")
-bus = &"Ambient"
 parameters/looping = true
 
 [node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("8_wscrc")
-bus = &"Music"
 parameters/looping = true
 
 [node name="FootstepPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("9_mswub")
-bus = &"SFX"
 
 [node name="HeartbeatPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("10_hybxs")
-bus = &"SFX"
 
 [node name="PeekPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("11_v2gmf")
-bus = &"SFX"
 
 [connection signal="pressed" from="EndUI/Panel/VBoxContainer/RestartButton" to="GameManager" method="_on_restart_button_pressed"]
 [connection signal="pressed" from="EndUI/Panel/VBoxContainer/MenuButton" to="GameManager" method="_on_menu_button_pressed"]
