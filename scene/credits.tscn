@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://bx3n7pcfuyewx" path="res://asset/object/environment/Background/layer_1.png" id="1_hgo0l"]
 [ext_resource type="Script" uid="uid://b3tod5gicajjp" path="res://script/credits.gd" id="1_s4ovi"]
-[ext_resource type="FontFile" uid="uid://bydkhsaabpo58" path="res://asset/font/DungeonFont.ttf" id="2_s4ovi"]
+[ext_resource type="FontFile" uid="uid://bp7rataone001" path="res://asset/font/PirataOne-Regular.ttf" id="2_s4ovi"]
 
 [node name="Credits" type="Control"]
 layout_mode = 3
@@ -42,6 +42,10 @@ alignment = 1
 [node name="TitleLabel" type="Label" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.9, 0.82, 0.62, 1.0)
+theme_override_colors/font_shadow_color = Color(0.702, 0.141, 0.165, 0.75)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 4
 theme_override_fonts/font = ExtResource("2_s4ovi")
 theme_override_font_sizes/font_size = 80
 text = "CREDITS"
@@ -90,7 +94,7 @@ vertical_alignment = 1
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_s4ovi")
 theme_override_font_sizes/font_size = 30
-text = "vrtxrry"
+text = "Pirata One (OFL)"
 horizontal_alignment = 1
 vertical_alignment = 1
 

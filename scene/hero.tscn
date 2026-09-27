@@ -1,9 +1,9 @@
 [gd_scene load_steps=28 format=3 uid="uid://1pfalyu23jxs"]
 
 [ext_resource type="Script" uid="uid://c73xb1imhu1ut" path="res://script/hero.gd" id="1_r065v"]
-[ext_resource type="Texture2D" uid="uid://chjswv3fw71vt" path="res://asset/object/hero/spr_player_idle_strip5.png" id="1_s32td"]
-[ext_resource type="Texture2D" uid="uid://be333jgmokjgs" path="res://asset/object/hero/spr_player_death_strip8.png" id="2_jr182"]
-[ext_resource type="Texture2D" uid="uid://bcasvll0krngl" path="res://asset/object/hero/spr_player_run_strip9.png" id="2_r065v"]
+[ext_resource type="Texture2D" uid="uid://dv7cluyxc8hgu" path="res://asset/object/hero/spr_player_idle_strip5.png" id="1_s32td"]
+[ext_resource type="Texture2D" uid="uid://1ucktsh3xhgn" path="res://asset/object/hero/spr_player_death_strip8.png" id="2_jr182"]
+[ext_resource type="Texture2D" uid="uid://dh86jmmykymsj" path="res://asset/object/hero/spr_player_run_strip9.png" id="2_r065v"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_6dpfi"]
 atlas = ExtResource("2_jr182")
@@ -179,8 +179,9 @@ position = Vector2(2, -1)
 script = ExtResource("1_r065v")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, 2)
 sprite_frames = SubResource("SpriteFrames_6dpfi")
-animation = &"death"
+animation = &"run"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(-3, 5)
