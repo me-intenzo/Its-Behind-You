@@ -5,6 +5,9 @@ class_name hero extends CharacterBody2D
 
 var is_peeking : bool = false
 var is_dashing : bool = false
+var touch_start_position : Vector2
+var touch_index : int = -1
+const DASH_SWIPE_DISTANCE := 80.0
 
 @onready var sprite : AnimatedSprite2D = $AnimatedSprite2D
 @onready var game_manager = get_parent().get_node("GameManager")
@@ -37,8 +40,18 @@ func _unhandled_input(event):
 	if event.is_action_pressed("peek_back"):
 		try_peek()
 
-	if event is InputEventScreenTouch and event.pressed:
-		try_peek()
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			touch_start_position = event.position
+			touch_index = event.index
+		elif event.index == touch_index:
+			var swipe: Vector2 = event.position - touch_start_position
+			touch_index = -1
+			if swipe.x >= DASH_SWIPE_DISTANCE and swipe.x > absf(swipe.y) * 1.2:
+				if not is_peeking and not is_dashing:
+					start_dash()
+			else:
+				try_peek()
 
 func try_peek():
 	# Keep the two timed threats separate: a peek cannot reveal the villain
