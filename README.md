@@ -98,6 +98,15 @@ the live audio mix, and both endings all run from there.
 | **Font** | [Pirata One](https://fonts.google.com/specimen/Pirata+One) (OFL) |
 | **Engine** | [Godot](https://godotengine.org/) |
 
+### Additional audio assets
+
+- **Dark Cavern Ambient 002** by Paul Wortmann — [CC0 source](https://opengameart.org/content/dark-cavern-ambient).
+- **Fantozzi's stone footsteps** by Fantozzi — [CC0 source](https://opengameart.org/content/fantozzis-footsteps-grasssand-stone).
+- **Falling Rock** by spookymodem — [CC BY 3.0 source](https://opengameart.org/content/falling-rock). Used with attribution under the license.
+- **Distant Monster Growl 11** — [SFXMint](https://sfxmint.com/sounds/horror-growl-11), CC0 1.0.
+- **Dissonant Horror Stinger Hit 54** — [SFXMint](https://sfxmint.com/sounds/horror-stinger-54), CC0 1.0.
+- **Short Video Whoosh 01** — [SFXMint](https://sfxmint.com/sounds/short-video-whoosh-01), CC0 1.0.
+
 <div align="center">
 <br/>
 <sub>Built with Godot · <i>Don't look away.</i></sub>
