@@ -48,6 +48,7 @@ The run moves on its own. The tension is all in the timing.
 | Action | Input |
 | --- | --- |
 | Peek behind you | `Spacebar` · Left-click · Tap (touch) |
+| Dash to dodge a falling stone | `V` · Swipe right (touch) |
 
 That's the whole game. One button. All timing.
 

@@ -992,7 +992,7 @@ func _build_tutorial_content(root: Control):
 		"You RUN on your own.  Just reach the door.",
 		"[ SPACE / CLICK / TAP ]  glance back to scare it off —",
 		"      but only when it is right on you. Mind your NERVE.",
-		"When a stone falls, press [ V ] during the impact to dash clear.",
+		"When a stone falls, press [ V ] or swipe right (mobile) to dash clear.",
 		"A hand may burst from the floor:  TAP fast to break free.",
 		"[ ESC ]  pause  ·  restart  ·  quit",
 	]
