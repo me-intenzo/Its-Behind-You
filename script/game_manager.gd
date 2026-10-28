@@ -24,6 +24,13 @@ extends Node
 @export var grab_taps_needed : int = 3        # taps to break free
 @export var grab_time_limit : float = 3.0     # seconds to break free before it drags you under
 
+# --- Falling stone threat ---
+@export var stone_min_gap : float = 14.0
+@export var stone_max_gap : float = 21.0
+@export var stone_warning_time : float = 0.9
+@export var stone_fall_time : float = 0.65
+const STONE_DROP_HEIGHT := 230.0
+
 var creature_distance : float
 var is_game_over : bool = false
 
@@ -42,6 +49,15 @@ var grab_timer : float = 0.0
 var grab_time_left : float = 0.0
 var grab_timing : bool = false   # countdown only runs once the hand has actually clenched
 var grab_sprite : AnimatedSprite2D
+
+var stone_timer : float = 0.0
+var stone_warning_left : float = 0.0
+var stone_fall_elapsed : float = 0.0
+var stone_warning_active : bool = false
+var stone_falling : bool = false
+var stone_visual : Node2D
+var stone_sprite : Sprite2D
+var stone_shadow : Polygon2D
 
 # stamina bar (built in code, added to the UI layer) — vertical, fills upward
 var stamina_fill : ColorRect
@@ -64,6 +80,12 @@ var music_player
 var footstep_player
 var heartbeat_player
 var peek_player
+var cave_player : AudioStreamPlayer
+var rockfall_player : AudioStreamPlayer
+var enemy_growl_player : AudioStreamPlayer
+var attack_stinger_player : AudioStreamPlayer
+var dash_whoosh_player : AudioStreamPlayer
+var stone_footstep_streams : Array[AudioStream] = []
 
 var footstep_timer : float = 0.0
 var footstep_interval : float = 2.5
@@ -82,6 +104,15 @@ var hero_start_x : float = 0.0
 var door_x : float = 1.0
 
 var overlay_font = load("res://asset/font/PirataOne-Regular.ttf")
+
+func _make_added_audio_player(player_name: String, stream_path: String, start_volume_db: float) -> AudioStreamPlayer:
+	var player := AudioStreamPlayer.new()
+	player.name = player_name
+	player.stream = load(stream_path) as AudioStream
+	player.volume_db = start_volume_db
+	player.process_mode = Node.PROCESS_MODE_PAUSABLE
+	add_child(player)
+	return player
 
 func _ready():
 	# GameManager keeps running while the tree is paused so it can drive the
@@ -112,8 +143,25 @@ func _ready():
 	heartbeat_player = get_parent().get_node("HeartbeatPlayer")
 	peek_player = get_parent().get_node("PeekPlayer")
 
+	for step_name in ["Fantozzi-StoneL1.ogg", "Fantozzi-StoneL2.ogg", "Fantozzi-StoneL3.ogg", "Fantozzi-StoneR1.ogg", "Fantozzi-StoneR2.ogg", "Fantozzi-StoneR3.ogg"]:
+		var step_stream: AudioStream = load("res://asset/sound/SFX/stone_footsteps/%s" % step_name)
+		if step_stream != null:
+			stone_footstep_streams.append(step_stream)
+	if not stone_footstep_streams.is_empty():
+		footstep_player.stream = stone_footstep_streams[0]
+
+	cave_player = _make_added_audio_player("CaveAmbiencePlayer", "res://asset/sound/Ambient/dark_cavern_ambient_002.ogg", -32.0)
+	var cave_loop: AudioStreamOggVorbis = cave_player.stream as AudioStreamOggVorbis
+	if cave_loop != null:
+		cave_loop.loop = true
+	rockfall_player = _make_added_audio_player("RockfallPlayer", "res://asset/sound/SFX/falling_rock.wav", -12.0)
+	enemy_growl_player = _make_added_audio_player("EnemyGrowlPlayer", "res://asset/sound/SFX/enemy_growl.mp3", -14.0)
+	attack_stinger_player = _make_added_audio_player("AttackStingerPlayer", "res://asset/sound/SFX/attack_stinger.mp3", -12.0)
+	dash_whoosh_player = _make_added_audio_player("DashWhooshPlayer", "res://asset/sound/SFX/dash_whoosh.mp3", -17.0)
+
 	wind_player.play()
 	music_player.play()
+	cave_player.play()
 
 	footstep_player.play()
 	footstep_player.volume_db = -15
@@ -121,6 +169,8 @@ func _ready():
 	_build_stamina_bar()
 	_build_grab_hand()
 	grab_timer = randf_range(grab_min_gap, grab_max_gap)
+	_build_stone_threat()
+	stone_timer = randf_range(4.0, 6.0)
 
 	# capture the run's start / finish X so the top bar can show how far to go
 	hero_start_x = hero_node.global_position.x
@@ -136,6 +186,17 @@ func _ready():
 		in_tutorial = false
 	else:
 		_show_tutorial()
+
+func play_dash_sound():
+	dash_whoosh_player.play()
+
+func _stop_run_audio():
+	wind_player.stop()
+	music_player.stop()
+	cave_player.stop()
+	heartbeat_player.stop()
+	footstep_player.stop()
+	rockfall_player.stop()
 
 # ===============================
 # DIFFICULTY
@@ -158,6 +219,9 @@ func _apply_difficulty():
 		danger_range *= 1.30          # more time to react
 		good_pushback *= 1.15         # peeks relieve more
 		grab_enabled = false          # no underground hand on Easy
+		stone_min_gap *= 1.3
+		stone_max_gap *= 1.3
+		stone_warning_time *= 1.2
 		show_tell = true
 	elif mode == Difficulty.Mode.HARD:
 		approach_speed *= 1.45         # closes in noticeably faster
@@ -170,6 +234,9 @@ func _apply_difficulty():
 		grab_max_gap *= 0.70
 		grab_taps_needed = 5           # 5 taps to break free (was 3)
 		grab_time_limit *= 1.10        # a little more time, since it takes more taps
+		stone_min_gap *= 0.75
+		stone_max_gap *= 0.75
+		stone_warning_time *= 0.85
 		show_tell = false              # no warning: you must feel it coming
 	else:
 		# NORMAL — use the exported defaults as-is
@@ -284,6 +351,8 @@ func _process(delta):
 	var now_danger := creature_distance <= danger_range
 	if now_danger != in_danger:
 		in_danger = now_danger
+		if in_danger and show_tell:
+			enemy_growl_player.play()
 		if not in_danger and not feedback_active:
 			feedback_label.visible = false
 	if show_tell and in_danger and not feedback_active:
@@ -304,8 +373,95 @@ func _process(delta):
 	# (no stacked threats) and never in the opening seconds. Off on Easy.
 	if grab_enabled:
 		grab_timer -= delta
-		if grab_timer <= 0.0 and creature_distance > danger_range + 20.0:
+		if grab_timer <= 0.0 and creature_distance > danger_range + 20.0 and not stone_warning_active:
 			_start_grab()
+
+	# Schedule stones separately, but never stack them on a grab or the creature.
+	if not stone_warning_active and not is_grabbed:
+		stone_timer -= delta
+		var stone_safety_margin := (max_approach_speed + close_boost) * (stone_warning_time + stone_fall_time) + 10.0
+		if stone_timer <= 0.0 and creature_distance > danger_range + stone_safety_margin and not villain_node.visible:
+			_start_stone_warning()
+
+	_process_stone(delta)
+
+# ===============================
+# FALLING STONES
+# ===============================
+
+func _build_stone_threat():
+	stone_visual = Node2D.new()
+	stone_visual.visible = false
+	stone_visual.z_index = 20
+	get_parent().add_child.call_deferred(stone_visual)
+
+	stone_sprite = Sprite2D.new()
+	# Rocks (Rework) by patvanmackelberg and AntumDeluge; released as CC0.
+	stone_sprite.texture = load("res://asset/object/environment/falling_rocks.png")
+	stone_sprite.region_enabled = true
+	stone_sprite.region_rect = Rect2(0, 0, 64, 64)
+	stone_visual.add_child(stone_sprite)
+
+	stone_shadow = Polygon2D.new()
+	stone_shadow.color = Color(0.02, 0.02, 0.02, 0.55)
+	var shadow_points := PackedVector2Array()
+	for i in 20:
+		var angle := TAU * float(i) / 20.0
+		shadow_points.append(Vector2(cos(angle) * 42.0, sin(angle) * 9.0))
+	stone_shadow.polygon = shadow_points
+	stone_shadow.visible = false
+	stone_shadow.z_index = 10
+	get_parent().add_child.call_deferred(stone_shadow)
+
+func _start_stone_warning():
+	stone_warning_active = true
+	stone_warning_left = stone_warning_time
+	stone_falling = false
+	stone_fall_elapsed = 0.0
+	stone_visual.rotation = 0.0
+	stone_shadow.global_position = hero_node.global_position + Vector2(0, 8)
+	stone_shadow.visible = true
+	stone_visual.global_position = hero_node.global_position + Vector2(0, -STONE_DROP_HEIGHT)
+	stone_visual.visible = true
+	feedback_active = true
+	feedback_label.text = "RUMBLE..."
+	feedback_label.modulate = Color(0.95, 0.76, 0.35)
+	feedback_label.visible = true
+
+func _process_stone(delta: float):
+	if not stone_warning_active:
+		return
+
+	if not stone_falling:
+		stone_warning_left -= delta
+		stone_shadow.global_position = hero_node.global_position + Vector2(0, 8)
+		stone_visual.global_position = hero_node.global_position + Vector2(0, -STONE_DROP_HEIGHT)
+		if stone_warning_left <= 0.0:
+			stone_falling = true
+			stone_fall_elapsed = 0.0
+			stone_visual.global_position = hero_node.global_position + Vector2(0, -STONE_DROP_HEIGHT)
+			feedback_label.text = "STONEFALL!  DASH NOW!"
+			feedback_label.modulate = Color(1.0, 0.28, 0.2)
+			rockfall_player.play()
+			shake_camera()
+		return
+
+	stone_fall_elapsed += delta
+	var fall_ratio: float = clampf(stone_fall_elapsed / stone_fall_time, 0.0, 1.0)
+	stone_visual.global_position.x = hero_node.global_position.x
+	stone_visual.global_position.y = hero_node.global_position.y - STONE_DROP_HEIGHT * (1.0 - fall_ratio)
+	stone_visual.rotation = fall_ratio * 0.25
+	if fall_ratio >= 1.0:
+		stone_warning_active = false
+		stone_visual.visible = false
+		stone_shadow.visible = false
+		feedback_active = false
+		feedback_label.visible = false
+		if hero_node.is_dashing:
+			show_feedback("DODGED!", Color(0.3, 1.0, 0.3))
+		else:
+			stone_game_over()
+		stone_timer = randf_range(stone_min_gap, stone_max_gap)
 # ===============================
 # GRAB EVENT
 # ===============================
@@ -418,10 +574,9 @@ func _grab_fail():
 	feedback_label.visible = false
 
 	await get_tree().create_timer(0.6).timeout
-	wind_player.stop()
-	music_player.stop()
-	heartbeat_player.stop()
-	footstep_player.stop()
+	_stop_run_audio()
+	enemy_growl_player.stop()
+	attack_stinger_player.play()
 	await fade_to_black()
 
 	end_label.text = "DRAGGED UNDER"
@@ -541,18 +696,32 @@ func game_over():
 	await get_tree().create_timer(0.2).timeout
 
 	villain_node.get_node("AnimatedSprite2D").play("attack")
+	enemy_growl_player.stop()
+	attack_stinger_player.play()
 	await get_tree().create_timer(0.3).timeout
 	hero_node.get_node("AnimatedSprite2D").play("death")
 
 	await get_tree().create_timer(0.6).timeout
-	wind_player.stop()
-	music_player.stop()
-	heartbeat_player.stop()
-	footstep_player.stop()
+	_stop_run_audio()
 	await fade_to_black()
 
 	end_label.text = "YOU FAILED"
 	end_label.modulate = Color(1, 0.1, 0.1)
+
+func stone_game_over():
+	if is_game_over:
+		return
+
+	is_game_over = true
+	hero_node.set_physics_process(false)
+	villain_node.visible = false
+	hero_node.get_node("AnimatedSprite2D").play("death")
+	_stop_run_audio()
+	await fade_to_black()
+
+	end_label.text = "YOU FAILED"
+	end_label.modulate = Color(1, 0.1, 0.1)
+
 # ===============================
 # SHARED FADE
 # ===============================
@@ -600,7 +769,7 @@ func win_game():
 
 	await get_tree().create_timer(3).timeout
 
-	footstep_player.stop()
+	_stop_run_audio()
 	
 	await fade_to_black()
 	
@@ -619,6 +788,7 @@ func update_audio(tension: float):
 
 	# MUSIC gets stronger
 	music_player.volume_db = lerp(-22, -4, tension)
+	cave_player.volume_db = lerp(-32, -25, tension)
 
 	# Subtle pitch increase for anxiety
 	music_player.pitch_scale = lerp(1.0, 1.1, tension)
@@ -644,6 +814,8 @@ func update_footsteps(delta):
 	if footstep_timer <= 0:
 
 		# Play footstep
+		if not stone_footstep_streams.is_empty():
+			footstep_player.stream = stone_footstep_streams[randi_range(0, stone_footstep_streams.size() - 1)]
 		footstep_player.pitch_scale = randf_range(0.95, 1.05)
 		footstep_player.play()
 
@@ -820,6 +992,7 @@ func _build_tutorial_content(root: Control):
 		"You RUN on your own.  Just reach the door.",
 		"[ SPACE / CLICK / TAP ]  glance back to scare it off —",
 		"      but only when it is right on you. Mind your NERVE.",
+		"When a stone falls, press [ V ] during the impact to dash clear.",
 		"A hand may burst from the floor:  TAP fast to break free.",
 		"[ ESC ]  pause  ·  restart  ·  quit",
 	]
